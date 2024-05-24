@@ -23,20 +23,47 @@ static void update_head(game_state_t* state, unsigned int snum);
 
 /* Task 1 */
 game_state_t* create_default_state() {
+    size_t length= 20;
   // TODO: Implement this function.
-  return NULL;
+  game_state_t* state= (game_state_t *)malloc(sizeof(game_state_t));
+  if(state == NULL) {
+      exit(1);
+  }
+  for(size_t i=0;i<20;++i) {
+      state->board[i]= (char *)malloc(sizeof(char) * (length + 1));
+      if(state->board[i] == NULL)
+          exit(1);
+      if(i==0 || i==(length-1)) {
+          strcpy(state->board[i], "####################");
+      }else if(i==2) {
+          strcpy(state->board[i], "# d>D    *         #");
+      }else {
+          strcpy(state->board[i], "#                  #");
+      }
+  }
+    state->num_rows= 20;
+    state->num_snakes= 1;
+    state->snakes= malloc(sizeof(snake_t));
+    state->snakes->head_row= 2;
+    state->snakes->head_col= 4;
+    state->snakes->tail_row= 2;
+    state->snakes->tail_col= 2;
+  return state;
 }
 
 /* Task 2 */
 void free_state(game_state_t* state) {
-  // TODO: Implement this function.
-  return;
+  for(size_t i=0;i<20;++i) {
+    free(state->board[i]);
+  }
+  free(state);
 }
 
 /* Task 3 */
 void print_board(game_state_t* state, FILE* fp) {
-  // TODO: Implement this function.
-  return;
+    for(size_t i=0;i<20;++i) {
+        fprintf(fp, "%s\n", state->board[i]);
+    }
 }
 
 /*
