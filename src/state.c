@@ -127,7 +127,6 @@ static bool is_snake(char c) {
       return true;
   return (c == '^' || c == '<' || c == 'v' || c == '>');
 }
-
 /*
   Converts a character in the snake's body ("^<v>")
   to the matching character representing the snake's
