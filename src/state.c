@@ -62,12 +62,13 @@ void free_state(game_state_t* state) {
     free(state->board[i]);
   }
   free(state->board);
+  free(state->snakes);
   free(state);
 }
 
 /* Task 3 */
 void print_board(game_state_t* state, FILE* fp) {
-    for(size_t i=0;i<18;++i) {
+    for(size_t i=0;i<state->num_rows;++i) {
         fprintf(fp, "%s\n", state->board[i]);
     }
 }
@@ -104,8 +105,7 @@ static void set_board_at(game_state_t* state, unsigned int row, unsigned int col
   Returns false otherwise.
 */
 static bool is_tail(char c) {
-  // TODO: Implement this function.
-  return true;
+    return (c == 'w' || c == 'a' || c == 's' || c == 'd');
 }
 
 /*
@@ -114,8 +114,7 @@ static bool is_tail(char c) {
   Returns false otherwise.
 */
 static bool is_head(char c) {
-  // TODO: Implement this function.
-  return true;
+    return (c == 'W' || c == 'A' || c == 'S' || c == 'D' || c == 'x');
 }
 
 /*
@@ -123,8 +122,10 @@ static bool is_head(char c) {
   The snake consists of these characters: "wasd^<v>WASDx"
 */
 static bool is_snake(char c) {
-  // TODO: Implement this function.
-  return true;
+  bool res= false;
+  if(is_head(c) || is_tail(c))
+      return true;
+  return (c == '^' || c == '<' || c == 'v' || c == '>');
 }
 
 /*
