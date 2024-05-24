@@ -75,7 +75,6 @@ void save_board(game_state_t* state, char* filename) {
   print_board(state, f);
   fclose(f);
 }
-
 /* Task 4.1 */
 
 /*
