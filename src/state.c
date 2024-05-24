@@ -67,7 +67,7 @@ void free_state(game_state_t* state) {
 
 /* Task 3 */
 void print_board(game_state_t* state, FILE* fp) {
-    for(size_t i=0;i<20;++i) {
+    for(size_t i=0;i<18;++i) {
         fprintf(fp, "%s\n", state->board[i]);
     }
 }
