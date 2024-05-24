@@ -133,7 +133,6 @@ static bool is_snake(char c) {
   to the matching character representing the snake's
   tail ("wasd").
 */
-
 static char body_to_tail(char c) {
   // TODO: Implement this function.
   return '?';
