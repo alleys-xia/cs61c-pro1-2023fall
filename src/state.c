@@ -45,14 +45,15 @@ game_state_t* create_default_state() {
           strcpy(state->board[i], "#                  #");
       }
   }
-    state->num_rows= 20;
+    state->num_rows= 18;
     state->num_snakes= 1;
-    state->snakes= malloc(sizeof(snake_t));
+    state->snakes= (snake_t*)malloc(sizeof(snake_t));
     state->snakes->head_row= 2;
     state->snakes->head_col= 4;
     state->snakes->tail_row= 2;
     state->snakes->tail_col= 2;
-  return state;
+    state->snakes->live= true;
+    return state;
 }
 
 /* Task 2 */
