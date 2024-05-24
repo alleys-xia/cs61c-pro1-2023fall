@@ -76,7 +76,6 @@ void save_board(game_state_t* state, char* filename) {
   fclose(f);
 }
 /* Task 4.1 */
-
 /*
   Helper function to get a character from the board
   (already implemented for you).
