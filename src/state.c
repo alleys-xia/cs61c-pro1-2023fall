@@ -20,7 +20,6 @@ static void find_head(game_state_t* state, unsigned int snum);
 static char next_square(game_state_t* state, unsigned int snum);
 static void update_tail(game_state_t* state, unsigned int snum);
 static void update_head(game_state_t* state, unsigned int snum);
-
 /* Task 1 */
 game_state_t* create_default_state() {
     size_t columns= 20;
