@@ -122,7 +122,6 @@ static bool is_head(char c) {
   The snake consists of these characters: "wasd^<v>WASDx"
 */
 static bool is_snake(char c) {
-  bool res= false;
   if(is_head(c) || is_tail(c))
       return true;
   return (c == '^' || c == '<' || c == 'v' || c == '>');
@@ -175,8 +174,19 @@ static unsigned int get_next_col(unsigned int cur_col, char c) {
   This function should not modify anything.
 */
 static char next_square(game_state_t* state, unsigned int snum) {
-  // TODO: Implement this function.
-  return '?';
+  unsigned int row= state->snakes[snum].head_row;
+  unsigned int col= state->snakes[snum].head_col;
+  //找到当前的蛇头的方向
+  char head_point= get_board_at(state,row,col);
+  if(head_point=='W') {
+      return state->board[row-1][col];
+  }else if(head_point=='A') {
+      return state->board[row][col-1];
+  }else if(head_point=='S') {
+      return state->board[row+1][col];
+  }else{
+      return state->board[row][col+1];
+  }
 }
 
 /*
@@ -191,8 +201,39 @@ static char next_square(game_state_t* state, unsigned int snum) {
   Note that this function ignores food, walls, and snake bodies when moving the head.
 */
 static void update_head(game_state_t* state, unsigned int snum) {
-  // TODO: Implement this function.
-  return;
+    unsigned int row= state->snakes[snum].head_row;
+    unsigned int col= state->snakes[snum].head_col;
+    //找到当前的蛇头的方向
+    char head_point= get_board_at(state,row,col);
+    //死蛇直接返回
+    if(head_point=='x') {
+        return;
+    }
+    if(head_point=='D') {
+        //update state
+        set_board_at(state, row, col+1, head_point);
+        set_board_at(state, row, col, '>');
+        //update snake
+        state->snakes[snum].head_col= col+1;
+    }else if(head_point=='A') {
+        //update state
+        set_board_at(state, row, col-1, head_point);
+        set_board_at(state, row, col, '<');
+        //update snake
+        state->snakes[snum].head_col= col-1;
+    }else if(head_point=='W') {
+        //update state
+        set_board_at(state, row-1, col, head_point);
+        set_board_at(state, row, col, '^');
+        //update snake
+        state->snakes[snum].head_row= row-1;
+    }else {
+        //update state
+        set_board_at(state, row+1, col, head_point);
+        set_board_at(state, row, col, 'v');
+        //update snake
+        state->snakes[snum].head_row= row+1;
+    }
 }
 
 /*
@@ -206,20 +247,102 @@ static void update_head(game_state_t* state, unsigned int snum) {
   ...in the snake struct: update the row and col of the tail
 */
 static void update_tail(game_state_t* state, unsigned int snum) {
-  // TODO: Implement this function.
-  return;
+    unsigned int row= state->snakes[snum].tail_row;
+    unsigned int col= state->snakes[snum].tail_col;
+    //找到当前的蛇头的方向
+    char tail_point= get_board_at(state, row, col);
+    if(tail_point == 'd') {
+        //update state
+        set_board_at(state, row, col+1, tail_point);
+        set_board_at(state, row, col, ' ');
+        //update snake
+        state->snakes[snum].tail_col= col+1;
+    }else if(tail_point == 'a') {
+        //update state
+        set_board_at(state, row, col-1, tail_point);
+        set_board_at(state, row, col, ' ');
+        //update snake
+        state->snakes[snum].tail_col= col-1;
+    }else if(tail_point == 'w') {
+        //update state
+        set_board_at(state, row-1, col, tail_point);
+        set_board_at(state, row, col, ' ');
+        //update snake
+        state->snakes[snum].tail_row= row-1;
+    }else {
+        //update state
+        set_board_at(state, row+1, col, tail_point);
+        set_board_at(state, row, col, ' ');
+        //update snake
+        state->snakes[snum].tail_row= row+1;
+    }
 }
 
 /* Task 4.5 */
 void update_state(game_state_t* state, int (*add_food)(game_state_t* state)) {
-  // TODO: Implement this function.
-  return;
+    unsigned int head_row, head_col;
+    //  每条蛇依次更新
+    for(unsigned int i= 0;i<state->num_snakes;++i) {
+        head_row= state->snakes[i].head_row;
+        head_col= state->snakes[i].head_col;
+        //找到蛇头即将接触的字符，若为蛇身或者边界则蛇死亡
+        char temp= next_square(state, i);
+        if(is_snake(temp) || temp=='#')
+            //设置蛇头为x标识死亡
+            set_board_at(state, head_row, head_col, 'x');
+        //吃到苹果时不更新tail并且生辰给一个新的苹果
+        else if(temp=='*'){
+            update_head(state, i);
+            add_food(state);
+        }else {
+            update_head(state, i);
+            update_tail(state, i);
+        }
+    }
 }
 
 /* Task 5 */
 game_state_t* load_board(FILE* fp) {
-  // TODO: Implement this function.
-  return NULL;
+    if(fp==NULL)
+        return NULL;
+    // 内存中的堆区分配内存
+    game_state_t* state= malloc(sizeof(game_state_t));
+    //初始化
+    state->num_snakes= 0;
+    state->num_rows= 0;
+    state->snakes= NULL;
+    state->board= NULL;
+    unsigned long capacity= 50;
+    //设置初始缓冲区buffer长度为50
+    char* buffer= malloc(sizeof(char)*capacity);
+    //判断是否读取到尾端,若至尾端则可以确定长度为len
+    unsigned long len= 0;
+    //若没有到达尾端，则扩大为2倍
+    int rows= 0;
+    while (fgets(buffer, sizeof(buffer), fp)){
+        len= strlen(buffer);
+        //当前行未读取到末端时
+        while(buffer[len-1]!='\n') {
+            //容量+len
+            capacity += len;
+            char* new_buffer= realloc(buffer, sizeof(char)*capacity);
+            if(new_buffer==NULL) {
+                exit(1);
+            }
+            fgets(new_buffer+len,sizeof(char)*(capacity-len),fp);
+            buffer= new_buffer;
+            len= strlen(buffer);
+        }
+        rows++;
+        //copy to board
+        state->board[rows-1]= malloc(sizeof(char)*len);
+        strcpy(state->board[rows-1], buffer);
+        //reset buffer以供下次读取文件
+        free(buffer);
+        capacity= 50;
+        buffer= malloc(sizeof(char)*capacity);
+    }
+  return state;
 }
 
 /*
@@ -231,12 +354,61 @@ game_state_t* load_board(FILE* fp) {
   fill in the head row and col in the struct.
 */
 static void find_head(game_state_t* state, unsigned int snum) {
-  // TODO: Implement this function.
-  return;
+    unsigned int tail_row= state->snakes[snum].tail_row;
+    unsigned int tail_col= state->snakes[snum].tail_col;
+    char c= state->board[tail_row][tail_col];
+    while(!is_head(c)) {
+        switch (c) {
+            case 'w':
+            case '^':
+                tail_row -=1;
+                break;
+            case 's':
+            case 'v':
+                tail_row +=1;
+                break;
+            case 'a':
+            case '<':
+                tail_col -=1;
+                break;
+            case 'd':
+            case '>':
+                tail_col +=1;
+                break;
+            default:
+                printf("something wrong!");
+                exit(1);
+        }
+        c= state->board[tail_row][tail_col];
+    }
+    //找到后更新snake中的状态
+    state->snakes[snum].head_col= tail_col;
+    state->snakes[snum].head_row= tail_row;
+    state->snakes[snum].live= true;
 }
+
+
+
 
 /* Task 6.2 */
 game_state_t* initialize_snakes(game_state_t* state) {
-  // TODO: Implement this function.
-  return NULL;
+    unsigned int snum= 0;
+    for(size_t i=0;i<state->num_rows;++i) {
+        size_t j=0;
+        //find tail
+        while(state->board[i][j]!='\0') {
+            ++snum;
+            if(is_tail(state->board[i][j])){
+                state->snakes[++snum].tail_row= (unsigned int)i;
+                state->snakes[++snum].tail_col= (unsigned int)j;
+                //find head
+                find_head(state, snum);
+                break;
+            }
+            j++;
+        }
+    }
+    //update总的数量
+    state->num_snakes= snum;
+    return state;
 }
