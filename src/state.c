@@ -342,9 +342,11 @@ void update_state(game_state_t* state, int (*add_food)(game_state_t* state)) {
         head_col= state->snakes[i].head_col;
         //找到蛇头即将接触的字符，若为蛇身或者边界则蛇死亡
         char temp= next_square(state, i);
-        if(is_snake(temp) || temp=='#')
-            //设置蛇头为x标识死亡
+        if(is_snake(temp) || temp=='#'){
+            //设置蛇头为x标识死亡,同时更新蛇数组中的状态
             set_board_at(state, head_row, head_col, 'x');
+            state->snakes[i].live= false;
+        }
         //吃到苹果时不更新tail并且生成给一个新的苹果
         else if(temp=='*'){
             update_head(state, i);
