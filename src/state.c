@@ -370,24 +370,24 @@ game_state_t* load_board(FILE* fp) {
     state->num_rows= 0;
     state->snakes= NULL;
     state->board= malloc(sizeof(char*));
-    unsigned long capacity= 50;
+    int capacity= 5;
     //设置初始缓冲区buffer长度为50
-    char* buffer= malloc(sizeof(char)*capacity);
+    char* buffer= malloc(sizeof(char) * (unsigned long) capacity);
     //判断是否读取到尾端,若至尾端则可以确定长度为len
     unsigned long len= 0;
     //若没有到达尾端，则扩大为2倍
     unsigned int rows= 0;
-    while (fgets(buffer, sizeof(buffer), fp)){
+    while (fgets(buffer, capacity, fp)){
         len= strlen(buffer);
         //当前行未读取到末端时
         while(buffer[len-1]!='\n') {
             //容量+len
             capacity += len;
-            char* new_buffer= realloc(buffer, sizeof(char)*capacity);
+            char* new_buffer= realloc(buffer, sizeof(char) * (unsigned long) capacity);
             if(new_buffer==NULL) {
                 exit(1);
             }
-            fgets(new_buffer+len,sizeof(char)*(capacity-len),fp);
+            fgets(new_buffer+len,sizeof(char)*((unsigned long) capacity - len), fp);
             buffer= new_buffer;
             len= strlen(buffer);
         }
@@ -399,7 +399,7 @@ game_state_t* load_board(FILE* fp) {
         //reset buffer以供下次读取文件
         free(buffer);
         capacity= 50;
-        buffer= malloc(sizeof(char)*capacity);
+        buffer= malloc(sizeof(char) * (unsigned long) capacity);
     }
     state->num_rows= rows;
     return state;
