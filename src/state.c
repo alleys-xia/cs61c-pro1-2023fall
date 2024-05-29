@@ -392,13 +392,11 @@ game_state_t* load_board(FILE* fp) {
             len= strlen(buffer);
         }
         // 去掉换行符
-        if (buffer[len - 1] == '\n') {
-            buffer[len - 1] = '\0';
-        }
+        buffer[len - 1] = '\0';
         rows++;
         //copy to board
         state->board= realloc(state->board, sizeof(char*)*rows);
-        state->board[rows-1]= malloc(sizeof(char)*len);
+        state->board[rows-1]= malloc(sizeof(char)*(strlen(buffer)+1));
         strcpy(state->board[rows-1], buffer);
         //reset buffer以供下次读取文件
         free(buffer);
