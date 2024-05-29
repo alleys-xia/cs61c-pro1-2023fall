@@ -394,7 +394,6 @@ game_state_t* load_board(FILE* fp) {
         // 去掉换行符
         if (buffer[len - 1] == '\n') {
             buffer[len - 1] = '\0';
-            len--;
         }
         rows++;
         //copy to board
