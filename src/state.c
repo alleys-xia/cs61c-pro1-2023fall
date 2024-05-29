@@ -449,25 +449,22 @@ static void find_head(game_state_t* state, unsigned int snum) {
     state->snakes[snum].live= true;
 }
 
-
-
-
 /* Task 6.2 */
 game_state_t* initialize_snakes(game_state_t* state) {
     unsigned int snum= 0;
+    //遍历整个字符串找到蛇尾,根据蛇尾来找到蛇头并更新
     for(size_t i=0;i<state->num_rows;++i) {
         size_t j=0;
         //find tail
         while(state->board[i][j]!='\0') {
-            ++snum;
             if(is_tail(state->board[i][j])){
-                state->snakes[++snum].tail_row= (unsigned int)i;
-                state->snakes[++snum].tail_col= (unsigned int)j;
+                state->snakes[snum].tail_row= (unsigned int)i;
+                state->snakes[snum].tail_col= (unsigned int)j;
                 //find head
                 find_head(state, snum);
-                break;
+                ++snum;
             }
-            j++;
+            ++j;
         }
     }
     //update总的数量
