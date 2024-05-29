@@ -62,7 +62,7 @@ game_state_t* create_default_state() {
 
 /* Task 2 */
 void free_state(game_state_t* state) {
-  for(size_t i=0;i<18; ++i) {
+  for(size_t i=0;i<state->num_rows; ++i) {
       //释放字符串空间
     free(state->board[i]);
   }
