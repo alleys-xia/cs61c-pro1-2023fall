@@ -313,7 +313,7 @@ static void update_head(game_state_t* state, unsigned int snum) {
 static void update_tail(game_state_t* state, unsigned int snum) {
     unsigned int row= state->snakes[snum].tail_row;
     unsigned int col= state->snakes[snum].tail_col;
-    //找到当前的蛇头的方向
+    //找到当前的蛇尾的方向
     char tail_point= get_board_at(state, row, col);
     //blank out the current tail
     set_board_at(state, row, col, ' ');
@@ -327,8 +327,10 @@ static void update_tail(game_state_t* state, unsigned int snum) {
     }else {
         state->snakes[snum].tail_row= row+1;
     }
+    //获取当前的即将变为尾部的字符
+    char c= get_board_at(state, state->snakes[snum].tail_row, state->snakes[snum].tail_col);
     //change the new tail from a body character (^<v>) into a tail character (wasd)
-    set_board_at(state, state->snakes[snum].tail_row, state->snakes[snum].tail_col,body_to_tail(tail_point));
+    set_board_at(state, state->snakes[snum].tail_row, state->snakes[snum].tail_col,body_to_tail(c));
 }
 
 /* Task 4.5 */
