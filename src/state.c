@@ -401,7 +401,8 @@ game_state_t* load_board(FILE* fp) {
         capacity= 50;
         buffer= malloc(sizeof(char)*capacity);
     }
-  return state;
+    state->num_rows= rows;
+    return state;
 }
 
 /*
