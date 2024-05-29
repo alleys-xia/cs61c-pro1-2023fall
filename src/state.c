@@ -23,20 +23,24 @@ static void update_head(game_state_t* state, unsigned int snum);
 
 /* Task 1 */
 game_state_t* create_default_state() {
+    //18行20列的游戏空间
     size_t columns= 20;
     size_t rows= 18;
-  game_state_t* state= (game_state_t *)malloc(sizeof(game_state_t));
+  game_state_t* state= malloc(sizeof(game_state_t));
   //如果分配内存失败，则退出
   if(state == NULL) {
       exit(1);
   }
-  state->board= (char**) malloc(sizeof(char*) * rows);
+  state->board= malloc(sizeof(char*) * rows);
     if(state->board == NULL)
         exit(1);
   for(size_t i=0;i<rows;++i) {
-      state->board[i]= (char *)malloc(sizeof(char) * (columns + 1));
+      state->board[i]= malloc(sizeof(char) * (columns + 1));
       if(state->board[i] == NULL)
           exit(1);
+      /**
+       * strcpy函数：char *strcpy(char *destination, const char *source);
+       * */
       if(i==0 || i==(rows - 1)) {
           strcpy(state->board[i], "####################");
       }else if(i==2) {
@@ -47,7 +51,7 @@ game_state_t* create_default_state() {
   }
     state->num_rows= 18;
     state->num_snakes= 1;
-    state->snakes= (snake_t*)malloc(sizeof(snake_t));
+    state->snakes= malloc(sizeof(snake_t));
     state->snakes->head_row= 2;
     state->snakes->head_col= 4;
     state->snakes->tail_row= 2;
@@ -59,10 +63,14 @@ game_state_t* create_default_state() {
 /* Task 2 */
 void free_state(game_state_t* state) {
   for(size_t i=0;i<18; ++i) {
+      //释放字符串空间
     free(state->board[i]);
   }
+  //释放char*动态数组空间
   free(state->board);
+  //释放snakes*动态数组空间
   free(state->snakes);
+  //释放state空间
   free(state);
 }
 
@@ -82,6 +90,7 @@ void save_board(game_state_t* state, char* filename) {
   print_board(state, f);
   fclose(f);
 }
+
 /* Task 4.1 */
 /*
   Helper function to get a character from the board
@@ -132,8 +141,24 @@ static bool is_snake(char c) {
   tail ("wasd").
 */
 static char body_to_tail(char c) {
-  // TODO: Implement this function.
-  return '?';
+    char res=c;
+    switch (c) {
+        case '^':
+            res= 'w';
+            break;
+        case 'v':
+            res= 's';
+            break;
+        case '<':
+            res= 'a';
+            break;
+        case '>':
+            res= 'd';
+            break;
+        default:
+            break;
+    }
+  return res;
 }
 
 /*
@@ -142,8 +167,24 @@ static char body_to_tail(char c) {
   body ("^<v>").
 */
 static char head_to_body(char c) {
-  // TODO: Implement this function.
-  return '?';
+    char res=c;
+    switch (c) {
+        case 'W':
+            res= '^';
+            break;
+        case 'S':
+            res= 'v';
+            break;
+        case 'A':
+            res= '<';
+            break;
+        case 'D':
+            res= '>';
+            break;
+        default:
+            break;
+    }
+    return res;
 }
 
 /*
@@ -152,7 +193,19 @@ static char head_to_body(char c) {
   Returns cur_row otherwise.
 */
 static unsigned int get_next_row(unsigned int cur_row, char c) {
-  // TODO: Implement this function.
+    switch (c) {
+        case 'v':
+        case 's':
+        case 'S':
+            cur_row += 1;
+            break;
+        case '^':
+        case 'w':
+        case 'W':
+            cur_row -= 1;
+        default:
+            break;
+    }
   return cur_row;
 }
 
@@ -162,8 +215,20 @@ static unsigned int get_next_row(unsigned int cur_row, char c) {
   Returns cur_col otherwise.
 */
 static unsigned int get_next_col(unsigned int cur_col, char c) {
-  // TODO: Implement this function.
-  return cur_col;
+    switch (c) {
+        case '>':
+        case 'd':
+        case 'D':
+            cur_col += 1;
+            break;
+        case '<':
+        case 'a':
+        case 'A':
+            cur_col -= 1;
+        default:
+            break;
+    }
+    return cur_col;
 }
 
 /*
@@ -173,6 +238,7 @@ static unsigned int get_next_col(unsigned int cur_col, char c) {
 
   This function should not modify anything.
 */
+//根据蛇头的方向返回下一步即将到达的字符
 static char next_square(game_state_t* state, unsigned int snum) {
   unsigned int row= state->snakes[snum].head_row;
   unsigned int col= state->snakes[snum].head_col;
@@ -209,28 +275,26 @@ static void update_head(game_state_t* state, unsigned int snum) {
     if(head_point=='x') {
         return;
     }
+    //update state:head->body
+    set_board_at(state, row, col, head_to_body(head_point));
     if(head_point=='D') {
-        //update state
+        //update state:
         set_board_at(state, row, col+1, head_point);
-        set_board_at(state, row, col, '>');
         //update snake
         state->snakes[snum].head_col= col+1;
     }else if(head_point=='A') {
         //update state
         set_board_at(state, row, col-1, head_point);
-        set_board_at(state, row, col, '<');
         //update snake
         state->snakes[snum].head_col= col-1;
     }else if(head_point=='W') {
         //update state
         set_board_at(state, row-1, col, head_point);
-        set_board_at(state, row, col, '^');
         //update snake
         state->snakes[snum].head_row= row-1;
     }else {
         //update state
         set_board_at(state, row+1, col, head_point);
-        set_board_at(state, row, col, 'v');
         //update snake
         state->snakes[snum].head_row= row+1;
     }
@@ -251,31 +315,20 @@ static void update_tail(game_state_t* state, unsigned int snum) {
     unsigned int col= state->snakes[snum].tail_col;
     //找到当前的蛇头的方向
     char tail_point= get_board_at(state, row, col);
+    //blank out the current tail
+    set_board_at(state, row, col, ' ');
     if(tail_point == 'd') {
-        //update state
-        set_board_at(state, row, col+1, tail_point);
-        set_board_at(state, row, col, ' ');
-        //update snake
+        //update snake tail_col
         state->snakes[snum].tail_col= col+1;
     }else if(tail_point == 'a') {
-        //update state
-        set_board_at(state, row, col-1, tail_point);
-        set_board_at(state, row, col, ' ');
-        //update snake
         state->snakes[snum].tail_col= col-1;
     }else if(tail_point == 'w') {
-        //update state
-        set_board_at(state, row-1, col, tail_point);
-        set_board_at(state, row, col, ' ');
-        //update snake
         state->snakes[snum].tail_row= row-1;
     }else {
-        //update state
-        set_board_at(state, row+1, col, tail_point);
-        set_board_at(state, row, col, ' ');
-        //update snake
         state->snakes[snum].tail_row= row+1;
     }
+    //change the new tail from a body character (^<v>) into a tail character (wasd)
+    set_board_at(state, state->snakes[snum].tail_row, state->snakes[snum].tail_col,body_to_tail(tail_point));
 }
 
 /* Task 4.5 */
@@ -290,11 +343,12 @@ void update_state(game_state_t* state, int (*add_food)(game_state_t* state)) {
         if(is_snake(temp) || temp=='#')
             //设置蛇头为x标识死亡
             set_board_at(state, head_row, head_col, 'x');
-        //吃到苹果时不更新tail并且生辰给一个新的苹果
+        //吃到苹果时不更新tail并且生成给一个新的苹果
         else if(temp=='*'){
             update_head(state, i);
             add_food(state);
         }else {
+            //默认时，更新头部以及尾部
             update_head(state, i);
             update_tail(state, i);
         }
