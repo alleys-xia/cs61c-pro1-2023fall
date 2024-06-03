@@ -1154,7 +1154,7 @@ bool test_load_board_1() {
   /*
   Board 01-simple (default):
   ####################
-  #                  #
+ 1
   # d>D    *         #
   #                  #
   #                  #
